@@ -1,0 +1,9 @@
+﻿.venv/
+.idea/
+.git/
+__pycache__/
+.ipynb_checkpoints/
+*.ipynb
+docs/
+tests/
+.pytest_cache/
