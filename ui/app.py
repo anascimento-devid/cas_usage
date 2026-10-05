@@ -11,10 +11,11 @@ st.set_page_config(
     page_icon="📞",
 )
 
-st.title("Prédiction de souscription")
+st.title("Score de souscription")
 st.write(
-    "Estimation de la probabilité qu'un client souscrive "
-    "à l'offre bancaire."
+    "Estimation de la probabilité de souscription d'un client. "
+    "Le score individuel sert ensuite à prioriser les clients "
+    "dans le cadre d'une campagne."
 )
 
 default = st.selectbox(
@@ -98,7 +99,7 @@ nr_employed = st.number_input(
     value=5000.0,
 )
 
-if st.button("Prédire"):
+if st.button("Scorer le client"):
     payload = {
         "default": default,
         "housing": housing,
@@ -131,20 +132,17 @@ if st.button("Prédire"):
         probability = result["probability"]
 
         st.metric(
-            "Probabilité de souscription",
+            "Score estimé de souscription",
             f"{probability:.1%}",
         )
 
-        if result["status"] == "abstention":
-            st.warning(
-                "Confiance insuffisante : "
-                "le modèle s'abstient."
-            )
-        elif result["prediction"] == 1:
-            st.success(
-                "Client identifié comme susceptible de souscrire."
-            )
-        else:
-            st.info(
-                "Client identifié comme peu susceptible de souscrire."
+        st.info(
+            "Ce score est utilisé pour classer les clients d'une campagne. "
+            "La décision de ciblage dépend ensuite de la capacité disponible "
+            "et du classement de l'ensemble des clients."
+        )
+
+        if "model_version" in result:
+            st.caption(
+                f"Version du modèle : {result['model_version']}"
             )

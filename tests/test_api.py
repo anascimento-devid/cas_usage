@@ -1,6 +1,8 @@
 ﻿from fastapi.testclient import TestClient
 import numpy as np
+
 from api.main import app
+
 
 client = TestClient(app)
 
@@ -28,10 +30,14 @@ def test_health():
     response = client.get("/health")
 
     assert response.status_code == 200
-    assert response.json()["status"] == "ok"
+
+    result = response.json()
+
+    assert result["status"] == "ok"
+    assert "model_version" in result
 
 
-def test_predict_positive(monkeypatch):
+def test_predict_returns_score(monkeypatch):
     from api import main
 
     monkeypatch.setattr(
@@ -50,11 +56,11 @@ def test_predict_positive(monkeypatch):
     result = response.json()
 
     assert result["status"] == "ok"
-    assert result["prediction"] == 1
     assert result["probability"] == 0.8
+    assert result["model_version"] == main.MODEL_VERSION
 
 
-def test_predict_negative(monkeypatch):
+def test_predict_low_score(monkeypatch):
     from api import main
 
     monkeypatch.setattr(
@@ -73,11 +79,10 @@ def test_predict_negative(monkeypatch):
     result = response.json()
 
     assert result["status"] == "ok"
-    assert result["prediction"] == 0
     assert result["probability"] == 0.2
 
 
-def test_predict_abstention(monkeypatch):
+def test_predict_mid_score_no_abstention(monkeypatch):
     from api import main
 
     monkeypatch.setattr(
@@ -95,9 +100,8 @@ def test_predict_abstention(monkeypatch):
 
     result = response.json()
 
-    assert result["status"] == "abstention"
-    assert result["prediction"] is None
-    assert result["reason"] == "confidence_insufficient"
+    assert result["status"] == "ok"
+    assert result["probability"] == 0.5
 
 
 def test_predict_invalid_payload():
@@ -111,3 +115,10 @@ def test_predict_invalid_payload():
     )
 
     assert response.status_code == 422
+
+
+def test_train_placeholder():
+    response = client.post("/train")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "not_implemented"
