@@ -5,7 +5,48 @@ import logging
 import time
 
 from api.schemas import PredictionInput
+from pathlib import Path
+import csv
+from datetime import datetime, timezone
 
+MONITORING_DIR = Path("monitoring")
+MONITORING_DIR.mkdir(exist_ok=True)
+
+METRICS_FILE = MONITORING_DIR / "api_metrics.csv"
+
+
+def write_api_metric(
+    endpoint: str,
+    status_code: int,
+    latency_ms: float,
+    probability: float | None = None,
+):
+    file_exists = METRICS_FILE.exists()
+
+    with METRICS_FILE.open("a", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=[
+                "timestamp",
+                "endpoint",
+                "status_code",
+                "latency_ms",
+                "probability",
+                "model_version",
+            ],
+        )
+
+        if not file_exists:
+            writer.writeheader()
+
+        writer.writerow({
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "endpoint": endpoint,
+            "status_code": status_code,
+            "latency_ms": latency_ms,
+            "probability": probability,
+            "model_version": MODEL_VERSION,
+        })
 
 logging.basicConfig(
     level=logging.INFO,
@@ -43,25 +84,42 @@ def health():
 def predict(data: PredictionInput):
     start = time.perf_counter()
 
-    input_dict = data.model_dump(by_alias=True)
-    df = pd.DataFrame([input_dict])
+    try:
+        df = pd.DataFrame([data.model_dump(by_alias=True)])
 
-    probability = model.predict_proba(df)[0, 1]
+        probability = float(
+            model.predict_proba(df)[0, 1]
+        )
 
-    latency_ms = (time.perf_counter() - start) * 1000
+        latency_ms = (
+            time.perf_counter() - start
+        ) * 1000
 
-    logger.info(
-        "predict | status=ok | probability=%.4f | latency_ms=%.2f | model=%s",
-        probability,
-        latency_ms,
-        MODEL_VERSION
-    )
+        write_api_metric(
+            endpoint="/predict",
+            status_code=200,
+            latency_ms=latency_ms,
+            probability=probability,
+        )
 
-    return {
-        "probability": float(probability),
-        "status": "ok",
-        "model_version": MODEL_VERSION
-    }
+        return {
+            "probability": probability,
+            "status": "ok",
+            "model_version": MODEL_VERSION,
+        }
+
+    except Exception:
+        latency_ms = (
+            time.perf_counter() - start
+        ) * 1000
+
+        write_api_metric(
+            endpoint="/predict",
+            status_code=500,
+            latency_ms=latency_ms,
+        )
+
+        raise
 
 @app.post("/train")
 def train():
