@@ -25,6 +25,7 @@ Thumbs.db
 
 # Model / cache artifacts
 *.joblib
+!models/pipeline.joblib
 *.pkl
 *.pickle
 
