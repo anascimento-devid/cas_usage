@@ -52,7 +52,8 @@ Sur le jeu de test
 ├── models/
 │   └── pipeline.joblib
 ├── ui/
-│   └── app.py
+│   ├── app.py
+│   └── monitoring.py
 ├── tests/
 ├── requirements.txt
 ├── Dockerfile
