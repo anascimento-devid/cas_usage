@@ -5,6 +5,10 @@
     container_name: bank-marketing-api
     ports:
       - "8000:8000"
+    environment:
+      - MONITORING_DIR=/app/monitoring
+    volumes:
+        - ./monitoring:/app/monitoring
 
   ui:
     build:
@@ -15,5 +19,8 @@
       - "8501:8501"
     environment:
       - API_URL=http://api:8000
+      - MONITORING_DIR=/app/monitoring
+    volumes:
+        - ./monitoring:/app/monitoring
     depends_on:
       - api

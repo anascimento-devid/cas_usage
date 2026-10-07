@@ -8,9 +8,9 @@ from api.schemas import PredictionInput
 from pathlib import Path
 import csv
 from datetime import datetime, timezone
+import os
 
-MONITORING_DIR = Path("monitoring")
-MONITORING_DIR.mkdir(exist_ok=True)
+MONITORING_DIR = Path(os.environ.get("MONITORING_DIR", "monitoring"))
 
 METRICS_FILE = MONITORING_DIR / "api_metrics.csv"
 
@@ -21,8 +21,7 @@ def write_api_metric(
     latency_ms: float,
     probability: float | None = None,
 ):
-    file_exists = METRICS_FILE.exists()
-
+    MONITORING_DIR.mkdir(parents=True, exist_ok=True)
     with METRICS_FILE.open("a", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(
             f,

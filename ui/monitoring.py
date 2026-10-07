@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 import streamlit as st
+import os
 
 
 st.set_page_config(
@@ -13,8 +14,9 @@ st.set_page_config(
 st.title("Monitoring — Bank Marketing")
 
 
-METRICS_FILE = Path("monitoring/api_metrics.csv")
-CAMPAIGN_FILE = Path("monitoring/campaign_results.csv")
+MONITORING_DIR = Path(os.environ.get("MONITORING_DIR", "monitoring"))
+METRICS_FILE = MONITORING_DIR / "api_metrics.csv"
+CAMPAIGN_FILE = MONITORING_DIR / "campaign_results.csv"
 
 
 # ============================================================
