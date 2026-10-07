@@ -126,7 +126,7 @@ def train():
         "train_called | status=not_implemented"
     )
 
-    return {
-        "status_code": status.HTTP_501_NOT_IMPLEMENTED,
-        "status": "not_implemented"
-    }
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Not implemented"
+    )
