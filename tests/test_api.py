@@ -146,3 +146,19 @@ def test_predict_real_model_end_to_end():
 
     assert result["status"] == "ok"
     assert 0.0 <= result["probability"] <= 1.0
+
+def test_predict_rejects_invalid_category():
+    invalid = {**VALID_PAYLOAD, "month": "foo"}
+    response = client.post(
+        "/predict",
+        json=invalid
+    )
+    assert response.status_code == 422
+
+def test_predict_rejects_out_of_bounds():
+    invalid = {**VALID_PAYLOAD, "campaign": 0}
+    response = client.post(
+        "/predict",
+        json=invalid
+    )
+    assert response.status_code == 422
