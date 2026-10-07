@@ -1,0 +1,28 @@
+{
+  "model": "GradientBoostingClassifier",
+  "scenario": "S3",
+  "random_state": 42,
+  "features": [
+    "default",
+    "housing",
+    "loan",
+    "contact",
+    "month",
+    "day_of_week",
+    "campaign",
+    "pdays",
+    "previous",
+    "poutcome",
+    "emp.var.rate",
+    "cons.price.idx",
+    "cons.conf.idx",
+    "euribor3m",
+    "nr.employed"
+  ],
+  "metrics_test": {
+    "precision_0.5": 0.6856287425149701,
+    "recall_0.5": 0.24676724137931033,
+    "f1_0.5": 0.3629160063391442,
+    "roc_auc": 0.8098462044200199
+  }
+}
