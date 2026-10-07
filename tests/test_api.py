@@ -5,6 +5,8 @@ import numpy as np
 import tempfile
 import pytest
 from pathlib import Path
+import json
+import joblib
 
 from api.main import app
 
@@ -162,3 +164,14 @@ def test_predict_rejects_out_of_bounds():
         json=invalid
     )
     assert response.status_code == 422
+
+def test_model_matches_metadata():
+    from training.train import FEATURES
+    with open("models/model_metadata.json") as f:
+        meta = json.load(f)
+    model = joblib.load("models/pipeline.joblib")
+
+    assert meta["scenario"] == "S3"
+    assert meta["features"] == list(model.feature_names_in_)
+    assert list(model.feature_names_in_) == FEATURES
+
