@@ -1,4 +1,4 @@
-﻿from fastapi import FastAPI
+﻿from fastapi import FastAPI, HTTPException, status
 import joblib
 import pandas as pd
 import logging
@@ -35,7 +35,7 @@ def write_api_metric(
             ],
         )
 
-        if not file_exists:
+        if not METRICS_FILE.exists():
             writer.writeheader()
 
         writer.writerow({
@@ -127,5 +127,6 @@ def train():
     )
 
     return {
+        "status_code": status.HTTP_501_NOT_IMPLEMENTED,
         "status": "not_implemented"
     }

@@ -1,10 +1,23 @@
-﻿from fastapi.testclient import TestClient
+﻿import tempfile
+
+from fastapi.testclient import TestClient
 import numpy as np
+import tempfile
+import pytest
+from pathlib import Path
 
 from api.main import app
 
 
 client = TestClient(app)
+
+@pytest.fixture(autouse=True)
+def isolated_monitoring(monkeypatch):
+    tmp = Path(tempfile.mkdtemp())
+
+    from api import main
+
+    monkeypatch.setattr(main, "METRICS_FILE", tmp / "api_metrics")
 
 
 VALID_PAYLOAD = {
@@ -117,8 +130,19 @@ def test_predict_invalid_payload():
     assert response.status_code == 422
 
 
-def test_train_placeholder():
+def test_train_not_implemented():
     response = client.post("/train")
+    assert response.status_code == 501
+
+def test_predict_real_model_end_to_end():
+    response = client.post(
+        "/predict",
+        json=VALID_PAYLOAD
+    )
 
     assert response.status_code == 200
-    assert response.json()["status"] == "not_implemented"
+
+    result = response.json()
+
+    assert result["status"] == "ok"
+    assert 0.0 <= result["probability"] <= 1.0
