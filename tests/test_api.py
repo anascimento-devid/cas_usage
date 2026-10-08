@@ -19,7 +19,7 @@ def isolated_monitoring(monkeypatch):
 
     from api import main
 
-    monkeypatch.setattr(main, "METRICS_FILE", tmp / "api_metrics")
+    monkeypatch.setattr(main, "METRICS_FILE", tmp / "api_metrics.csv")
 
 
 VALID_PAYLOAD = {
@@ -135,6 +135,32 @@ def test_predict_invalid_payload():
 def test_train_not_implemented():
     response = client.post("/train")
     assert response.status_code == 501
+
+def test_write_api_metric_writes_header_once():
+    from api import main
+
+    response = client.post("/predict", json=VALID_PAYLOAD)
+
+    assert response.status_code == 200
+    assert main.METRICS_FILE.exists()
+
+    lines = main.METRICS_FILE.read_text(encoding="utf-8").strip().splitlines()
+
+    assert lines[0].startswith("timestamp,endpoint,status_code")
+
+    assert len(lines) == 2
+
+    main.write_api_metric(
+        endpoint="/predict",
+        status_code=200,
+        latency_ms=1.0,
+        probability=0.5,
+    )
+
+    lines = main.METRICS_FILE.read_text(encoding="utf-8").strip().splitlines()
+
+    assert len(lines) == 3
+    assert lines[0].startswith("timestamp,endpoint,status_code")
 
 def test_predict_real_model_end_to_end():
     response = client.post(

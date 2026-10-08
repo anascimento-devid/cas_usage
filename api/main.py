@@ -22,6 +22,9 @@ def write_api_metric(
     probability: float | None = None,
 ):
     MONITORING_DIR.mkdir(parents=True, exist_ok=True)
+
+    write_header = not METRICS_FILE.exists()
+
     with METRICS_FILE.open("a", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(
             f,
@@ -35,7 +38,7 @@ def write_api_metric(
             ],
         )
 
-        if not METRICS_FILE.exists():
+        if write_header:
             writer.writeheader()
 
         writer.writerow({

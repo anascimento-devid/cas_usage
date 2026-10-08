@@ -147,11 +147,17 @@ Le suivi en production prévoit notamment
 - taux de sélection par sous-groupe
 - FPR et FNR par sous-groupe
 
-Un tableau de bord Streamlit peut être utilisé pour rendre ces indicateurs accessibles à un utilisateur non technique
+Un tableau de bord Streamlit rend ces indicateurs accessibles à un utilisateur non technique
+
+```bash
+streamlit run ui/monitoring.py
+```
+
+Le suivi technique (requêtes, latence p95, erreurs, distribution des scores) est alimenté automatiquement par l'API. Les métriques métier (précision top 10 %, lift, calibration) apparaissent après récupération des résultats de campagne dans `monitoring/campaign_results.csv`
 
 ## Limites
 
 - le top 10 % est une hypothèse de travail et non une contrainte métier définitive
-- le dashboard de monitoring complet n'est pas implémenté
+- le dashboard de monitoring est un prototype : les métriques métier attendent le retour réel de campagne
 - le réentraînement automatique n'est pas implémenté
 - les écarts entre sous-groupes doivent être surveillés en production
