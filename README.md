@@ -48,7 +48,7 @@ Sur le jeu de test
 │   ├── schemas.py
 │   └── __init__.py
 ├── notebooks/
-│   └── rendu_certif.ipynb
+│   └── notebook.ipynb
 ├── models/
 │   └── pipeline.joblib
 ├── ui/
@@ -83,7 +83,7 @@ jupyter notebook
 Puis ouvrir
 
 ```text
-notebooks/rendu_certif.ipynb
+notebooks/notebook.ipynb
 ```
 
 ## Lancer l'API
